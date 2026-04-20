@@ -3,9 +3,16 @@
 
 use Illuminate\Support\Facades\Route;
 
+use yangpimpollo\L3_infrastructure\Controllers\AuthController;
 use yangpimpollo\L3_infrastructure\Controllers\HelloWorldController;
+use yangpimpollo\L3_infrastructure\Controllers\HomeController;
 
 
 
 
 Route::get('/hello', HelloWorldController::class);
+Route::get('/home', HomeController::class);
+
+Route::get('/auth', [AuthController::class, 'index']);
+Route::post('/auth.login', [AuthController::class, 'login']);
+Route::post('/auth.logout', [AuthController::class, 'logout']);

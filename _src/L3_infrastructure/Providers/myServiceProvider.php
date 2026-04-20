@@ -14,11 +14,14 @@ use Dedoc\Scramble\Support\Generator\SecurityScheme;
 
 
 
+use yangpimpollo\L1_domain\Repository\AuthRepositoryInterface;
+use yangpimpollo\L3_infrastructure\Persistence\EloquentAuth;
+
 class myServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        // 
+        $this->app->bind(AuthRepositoryInterface::class, EloquentAuth::class);
     }
 
     public function boot(): void

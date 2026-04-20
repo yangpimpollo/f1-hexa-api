@@ -7,19 +7,15 @@ use yangpimpollo\L2_application\UseCases\HelloWorld;
 
 class HelloWorldController
 {
-    public function __construct(
-        private readonly HelloWorld $useCase
-    ) {}
+    public function __construct(private readonly HelloWorld $useCase) {}
 
     public function __invoke(): JsonResponse
     {
         $message = $this->useCase->execute();
 
         return new JsonResponse([
-            'status' => 'success',
-            'data' => [
-                'message' => $message
-            ]
+            'status' => 'success✅',
+            'data' => [ 'message' => $message ]
         ]);
     }
 }
