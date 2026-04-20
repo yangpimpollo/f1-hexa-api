@@ -15,4 +15,4 @@ Route::get('/home', HomeController::class);
 
 Route::get('/auth', [AuthController::class, 'index']);
 Route::post('/auth.login', [AuthController::class, 'login']);
-Route::post('/auth.logout', [AuthController::class, 'logout']);
+Route::post('/auth.logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');

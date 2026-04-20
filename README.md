@@ -60,3 +60,11 @@ DB_PASSWORD=root
 php artisan migrate
 php artisan serve
 
+
+
+config/auth.php
+    'providers' => [
+        'users' => [
+            'driver' => 'eloquent',
+            'model' => yangpimpollo\L3_infrastructure\Model\my_user::class,
+        ],
