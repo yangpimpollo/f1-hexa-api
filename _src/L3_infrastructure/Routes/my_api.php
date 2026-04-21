@@ -42,7 +42,6 @@ use yangpimpollo\L1_domain\ValueObjects\dni;
 
 
 Route::get('/test-dni/{valor}', function ($valor) {
-    // Esto disparará la excepción si el valor no tiene 8 dígitos o no es numérico
     $objetoDni = new dni($valor); 
     return response()->json(['dni' => $objetoDni->value()]);
 });

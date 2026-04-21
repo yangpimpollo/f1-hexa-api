@@ -82,6 +82,18 @@ php artisan serve
 
 
 # Acerca de las Excepciones
+0. para registrar en `bootstrap/app.php`
+```php
+use yangpimpollo\L1_domain\Exceptions\my_invalid_dni_Exception;
+
+    ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->render(function (my_invalid_dni_Exception $e) {
+            return response()->json([
+                'status' => 'error_de_dominio',
+                'mensaje' => $e->getMessage()
+            ], 400);
+        });
+```
 1. tenemos una ruta en api-route para probar
 ```php
 Route::get('/test-dni/{valor}', function ($valor) {
@@ -118,7 +130,7 @@ Route::get('/test-dni/{valor}', function ($valor) {
     }
 ```
 
-3. MODO:  debug|no debug - registrado en bootstrap/app.php withExceptions
+5. MODO:  debug|no debug - registrado en bootstrap/app.php withExceptions
 ```json
 400 Bad Request
     {

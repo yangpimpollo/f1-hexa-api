@@ -3,9 +3,10 @@
 namespace yangpimpollo\L1_domain\Repository;
 
 use yangpimpollo\L1_domain\Entity\Customer;
+use yangpimpollo\L1_domain\ValueObjects\dni;
 
 interface CustomerRepositoryInterface
 {
-    public function show(string $dni);
-    public function store(Customer $customer);
+    public function show(dni $dni): ?Customer;
+    public function store(Customer $customer): void;
 }
