@@ -13,6 +13,9 @@ class SearchController
         private SearchProductUseCase $search
     ) {}
 
+    /**
+     * Buscar Producto
+     */
     public function index(Request $request): JsonResponse
     {
         // Al definir esta validación, Scramble detecta 'q' automáticamente

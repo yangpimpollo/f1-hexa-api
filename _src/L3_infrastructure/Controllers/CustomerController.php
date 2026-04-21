@@ -16,6 +16,9 @@ class CustomerController
         private StoreCustomerUseCase $StoreCustomerUseCase
     ) {}
 
+    /**
+     * Buscar Cliente
+     */
     public function show(string $id): JsonResponse 
     {
         $customer = $this->ShowCustomerUseCase->execute($id);
@@ -38,7 +41,10 @@ class CustomerController
             ]
         ]);
     }
-   
+
+    /**
+     * Guardar Cliente
+     */
     public function store(Request $request): JsonResponse 
     {
         $request->validate([

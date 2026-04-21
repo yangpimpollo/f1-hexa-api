@@ -8,6 +8,9 @@ class DashBoardController
 {
     public function __construct() {}
 
+    /**
+     * pagina de DashBoard
+     */
     public function __invoke(): JsonResponse
     {
         return new JsonResponse([

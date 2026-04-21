@@ -4,11 +4,29 @@ namespace yangpimpollo\L3_infrastructure\Persistence;
 
 use Illuminate\Support\Facades\DB;
 use yangpimpollo\L1_domain\Entity\Order;
+use yangpimpollo\L1_domain\Entity\OrderItem;
 use yangpimpollo\L1_domain\Repository\OrderRepositoryInterface;
+use yangpimpollo\L1_domain\ValueObjects\dni;
 use Exception;
+use DateTimeImmutable;
 
 class EloquentOrder implements OrderRepositoryInterface
 {
+    /**
+     * Lista las órdenes de una tienda con paginación nativa de SQL.
+     */
+    public function index(string $storeId): array 
+    {
+        $limit = 15;
+        $page = request()->get('page', 1);
+        $offset = ($page - 1) * $limit;
+
+        return DB::select(
+            "SELECT * FROM orders WHERE store_id = ? ORDER BY order_date DESC LIMIT ? OFFSET ?",
+            [$storeId, $limit, $offset]
+        );
+    }
+
     public function store(Order $order): void
     {
         DB::transaction(function () use ($order) {
@@ -44,7 +62,6 @@ class EloquentOrder implements OrderRepositoryInterface
                 );
 
                 // B. Restar Stock en Inventario
-                // Usamos una sentencia que falla si el stock queda negativo para mayor seguridad
                 $affected = DB::update(
                     "UPDATE inventories 
                      SET quantity = quantity - ? 
@@ -61,6 +78,59 @@ class EloquentOrder implements OrderRepositoryInterface
                     throw new Exception("Stock insuficiente para el producto: " . $item->getProductId());
                 }
             }
+        });
+    }
+
+    /**
+     * Recupera una orden completa con sus items (Reconstrucción del Agregado)
+     */
+    public function show(string $orderId): ?Order 
+    {
+        $row = DB::selectOne("SELECT * FROM orders WHERE order_id = ?", [$orderId]);
+        if (!$row) return null;
+
+        $order = new Order(
+            $row->order_id,
+            new dni($row->customer_dni),
+            $row->store_id,
+            (int)$row->staff_id,
+            new DateTimeImmutable($row->order_date)
+        );
+
+        $items = DB::select("SELECT * FROM order_items WHERE order_id = ?", [$orderId]);
+        foreach ($items as $item) {
+            $order->addItem(new OrderItem(
+                $item->product_id,
+                (int)$item->quantity,
+                (float)$item->list_price,
+                (float)$item->discount
+            ));
+        }
+
+        return $order;
+    }
+
+    /**
+     * Elimina una orden y DEVUELVE el stock a inventories
+     */
+    public function delete(string $orderId): void 
+    {
+        DB::transaction(function () use ($orderId) {
+            // 1. Buscamos la orden para saber qué productos devolver
+            $order = $this->show($orderId);
+            if (!$order) throw new Exception("Orden no encontrada.");
+
+            // 2. Devolvemos el stock a inventories
+            foreach ($order->getItems() as $item) {
+                DB::update(
+                    "UPDATE inventories SET quantity = quantity + ? 
+                     WHERE store_id = ? AND product_id = ?",
+                    [$item->getQuantity(), $order->getStoreId(), $item->getProductId()]
+                );
+            }
+
+            // 3. Borramos la orden (Items se borran por CASCADE)
+            DB::delete("DELETE FROM orders WHERE order_id = ?", [$orderId]);
         });
     }
 }

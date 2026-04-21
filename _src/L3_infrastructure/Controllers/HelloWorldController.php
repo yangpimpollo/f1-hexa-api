@@ -9,6 +9,9 @@ class HelloWorldController
 {
     public function __construct(private readonly HelloWorld $useCase) {}
 
+    /**
+     * pagina de HelloWorld
+     */
     public function __invoke(): JsonResponse
     {
         $message = $this->useCase->execute();

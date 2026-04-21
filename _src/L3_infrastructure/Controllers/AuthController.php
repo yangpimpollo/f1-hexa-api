@@ -16,10 +16,16 @@ class AuthController
         private LogoutUseCase $LogoutUseCase
     ) {}
 
+    /**
+     * pagina de Login
+     */
     public function index(): JsonResponse {
         return new JsonResponse([ 'message' => 'quiero iniciar sección . . .🔒🗝️' ]);
     }
 
+    /**
+     * Login
+     */
     public function login(Request $request): JsonResponse {
 
         $request->validate([ 'username' => 'required|string', 'password' => 'required|string', ]);
@@ -35,6 +41,9 @@ class AuthController
         ]);
     }
 
+    /**
+     * Logout
+     */
     public function logout(Request $request): JsonResponse {
         $dat = $this->LogoutUseCase->execute();
 

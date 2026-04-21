@@ -8,6 +8,9 @@ class HomeController
 {
     public function __construct() {}
 
+    /**
+     * pagina de Home
+     */
     public function __invoke(): JsonResponse
     {
         return new JsonResponse([

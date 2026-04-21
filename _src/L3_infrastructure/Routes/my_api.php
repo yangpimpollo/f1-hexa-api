@@ -30,7 +30,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/products/search',[SearchController::class, 'index']);
 
-    Route::post('/orders', [OrderController::class, 'store']);
+    Route::get('/orders/index', [OrderController::class, 'index']);
+    Route::get('/orders/show', [OrderController::class, 'show']);
+    Route::post('/orders/store', [OrderController::class, 'store']);
+    Route::delete('/orders/delete', [OrderController::class, 'delete']);
 });
 
 
@@ -47,7 +50,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 use yangpimpollo\L1_domain\ValueObjects\dni;
 
-
+    /**
+     * my_invalid_dni_Exception Test
+     */
 Route::get('/test-dni/{valor}', function ($valor) {
     $objetoDni = new dni($valor); 
     return response()->json(['dni' => $objetoDni->value()]);
