@@ -23,4 +23,12 @@ class EloquentSearchProduct implements ProductRepositoryInterface
             LIMIT 20
         ", [$storeId, "%{$query}%"]);
     }
+
+    public function show(string $productId): ?object
+    {
+        return \Illuminate\Support\Facades\DB::selectOne(
+            "SELECT product_id, product_price FROM products WHERE product_id = ?",
+            [$productId]
+        );
+    }
 }

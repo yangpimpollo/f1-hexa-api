@@ -18,15 +18,13 @@ class SearchController
         // Al definir esta validación, Scramble detecta 'q' automáticamente
         // http://localhost:8000/api/products/search?q=.......
         // buscador patito
-        // 1. Validamos la entrada (parámetro 'patito')
+
         $validated = $request->validate([ 
             'patito' => ['required', 'string', 'min:1', 'max:50'] 
         ]);
 
-        // 2. Obtenemos el store_id del usuario autenticado vía Sanctum
         $storeId = $request->user()->store_id;
 
-        // 3. Ejecutamos búsqueda filtrada por tienda
         $results = $this->search->execute($validated['patito'], $storeId);
 
         return response()->json([
