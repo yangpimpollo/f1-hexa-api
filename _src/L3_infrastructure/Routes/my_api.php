@@ -4,6 +4,7 @@
 use Illuminate\Support\Facades\Route;
 
 use yangpimpollo\L3_infrastructure\Controllers\AuthController;
+use yangpimpollo\L3_infrastructure\Controllers\CustomerController;
 use yangpimpollo\L3_infrastructure\Controllers\DashBoardController;
 use yangpimpollo\L3_infrastructure\Controllers\HelloWorldController;
 use yangpimpollo\L3_infrastructure\Controllers\HomeController;
@@ -22,6 +23,10 @@ Route::post('/auth.logout', [AuthController::class, 'logout'])->middleware('auth
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/dashboard', DashBoardController::class);
+
+    Route::get('/search-customer/{id}', [CustomerController::class, 'show']);
+    Route::post('/store-customer', [CustomerController::class, 'store']);
+
 
     
 });
