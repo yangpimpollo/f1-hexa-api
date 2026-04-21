@@ -1,15 +1,12 @@
-
-
+# Configuración de proyecto
+```bash
 laravel new f1-hexa-api
 cd f1-hexa-api
-
-
 php artisan install:api
-
 composer require dedoc/scramble
 php artisan vendor:publish --provider="Dedoc\Scramble\ScrambleServiceProvider" --tag="scramble-config"
 
-composer.json
+#-- composer.json -----------------------------------------------------
     "autoload": {
         "psr-4": {
             "App\\": "app/",
@@ -17,21 +14,24 @@ composer.json
             "Database\\Seeders\\": "database/seeders/",
             "yangpimpollo\\": "_src/"
         }
+#----------------------------------------------------------------------
+
 
 composer dump-autoload
 
-bootstrap/app.php
+
+#-- bootstrap/app.php -------------------------------------------------
     api: __DIR__.'/../_src/L3_infrastructure/Routes/my_api.php',
 
-bootstrap/providers.php
+#-- bootstrap/providers.php -------------------------------------------
     use yangpimpollo\L3_infrastructure\Providers\myServiceProvider;
     myServiceProvider::class,
 
 
-_src [L1_domain, L2_application, L3_infrastructure]
+# crear _src [L1_domain, L2_application, L3_infrastructure]
 
 
-L3_infrastructure/Providers/myServiceProvider
+#-- L3_infrastructure/Providers/myServiceProvider ---------------------
     use Dedoc\Scramble\Scramble;
     use Dedoc\Scramble\Support\Generator\OpenApi;
     use Dedoc\Scramble\Support\Generator\SecurityScheme;
@@ -41,9 +41,9 @@ L3_infrastructure/Providers/myServiceProvider
         Scramble::afterOpenApiGenerated(function (OpenApi $openApi) {
             $openApi->secure( SecurityScheme::http('bearer') );
         });
+#----------------------------------------------------------------------
 
-
-clean migrations
+# clean migrations cache, jobs
 
 .env
 .env.example
@@ -56,30 +56,75 @@ DB_USERNAME=postgres
 DB_PASSWORD=root
 
 
-
 php artisan migrate
 php artisan serve
 
 
-
-config/auth.php
+#-- config/auth.php --------------------------------------------------
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
             'model' => yangpimpollo\L3_infrastructure\Model\my_user::class,
         ],
+#----------------------------------------------------------------------
 
+```
 
-
-
-
-
-
-
-
-
+```bash
+# LUEGO DE CLONAR PROYECTO
 composer install
 cp .env.example .env
 php artisan key:generate
 php artisan migrate --seed
 php artisan serve
+```
+
+
+
+# Acerca de las Excepciones
+1. tenemos una ruta en api-route para probar
+```php
+Route::get('/test-dni/{valor}', function ($valor) {
+    $objetoDni = new dni($valor); 
+    return response()->json(['dni' => $objetoDni->value()]);
+});
+```
+2. enviamos `http://127.0.0.1:8000/api/test-dni/{valor}` valores incorrectos para lanzar la excepcion obtendremos resultados diferentes
+
+3. MODO:  no debug - sin registrar
+```json
+500 Internal Server Error
+    {
+    "message": "Server Error"
+    }
+```
+4. MODO:  debug - sin registrar
+```json
+500 Internal Server Error
+    {
+    "message": "🙄❌❌ El DNI '1234567' debe tener exactamente 8 dígitos.",
+    "exception": "yangpimpollo\\L1_domain\\Exceptions\\my_invalid_dni_Exception",
+    "file": "/home/yangpimpollo/Laravel_repo/f1-hexa-api/_src/L1_domain/Exceptions/my_invalid_dni_Exception.php",
+    "line": 11,
+    "trace": [
+        {
+        "file": "/home/yangpimpollo/Laravel_repo/f1-hexa-api/_src/L1_domain/ValueObjects/dni.php",
+        "line": 20,
+        "function": "invalidLength",
+        "class": "yangpimpollo\\L1_domain\\Exceptions\\my_invalid_dni_Exception",
+        "type": "::"
+        ...
+        }
+    }
+```
+
+3. MODO:  debug|no debug - registrado en bootstrap/app.php withExceptions
+```json
+400 Bad Request
+    {
+    "status": "error_de_dominio",
+    "mensaje": "🙄❌❌ El DNI '1234567' debe tener exactamente 8 dígitos."
+    }
+```
+
+
