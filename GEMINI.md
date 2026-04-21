@@ -1,47 +1,51 @@
 # Contexto del Proyecto: F1 Hexa API 🏎️
 
-Este proyecto es una implementación de **Arquitectura Hexagonal (por capas)** sobre el framework **Laravel 11**, utilizando **Sanctum** para autenticación.
+Este proyecto es una implementación de **Arquitectura Hexagonal (por capas)** sobre el framework **Laravel 11**, utilizando **Sanctum** para autenticación y **PostgreSQL** para persistencia de alto rendimiento.
 
 ## 🏗️ Estructura del Código (`_src/`)
 
-El código principal de la lógica de negocio y la infraestructura personalizada reside en la carpeta `_src/`, organizada así:
+Organizado en tres capas puras:
+- **`L1_domain/`**: Entidades, Value Objects (Dni, Phone), Interfaces de Repositorios y Excepciones de Dominio.
+- **`L2_application/`**: Casos de uso y DTOs (Data Transfer Objects).
+- **`L3_infrastructure/`**: Controladores, Persistencia (SQL Puro), Proveedores y Rutas.
 
-- **`L1_domain/`**: Entidades e interfaces de repositorios. (Ej: `AuthRepositoryInterface`).
-- **`L2_application/`**: Casos de uso y DTOs. (Ej: `LoginUseCase`, `LoginDto`).
-- **`L3_infrastructure/`**: Controladores, Modelos Eloquent, Persistencia y Rutas.
-    - **Modelos**: Se utiliza el modelo `my_user` en lugar del `User` por defecto.
-    - **Rutas**: Definidas en `L3_infrastructure/Routes/my_api.php`.
+## 🔑 Módulos Implementados
 
-## 🔑 Autenticación (Sanctum)
+### 1. Autenticación (Sanctum)
+- **Tabla**: `my_users` (vinculada a `stores`).
+- **Lógica**: Login/Logout mediante `EloquentAuth`.
+- **Seguridad**: Tokens Bearer gestionados por Sanctum.
 
-- **Tabla de Usuarios**: `my_user` (definida en la última migración).
-- **Campos**: `username` (para login), `email`, `password`.
-- **Repositorio**: `EloquentAuth` maneja la lógica de login/logout y generación de tokens.
-- **Configuración**: `config/auth.php` ha sido modificado para usar `yangpimpollo\L3_infrastructure\Model\my_user::class`.
+### 2. Clientes (Customers)
+- **Validación**: Uso de Value Objects para DNI (8 dígitos) y Phone (9 dígitos, empieza con 9).
+- **Excepciones**: Manejo global de errores de dominio en `bootstrap/app.php`.
+- **Persistencia**: `EloquentCustomer` usando SQL directo.
 
-## 🛠️ Comandos Útiles para continuar
+### 3. Productos y Búsqueda
+- **Esquema**: `categories` -> `products` <- `inventories` -> `stores`.
+- **Búsqueda Contextual**: Los empleados solo pueden buscar productos con stock en su propia tienda (`SearchController`).
+- **Rendimiento**: Búsquedas con `ILIKE` en PostgreSQL para máxima velocidad.
 
-### Instalación y Base de Datos
+### 4. Ventas (Orders)
+- **Agregado**: La entidad `Order` gestiona una lista de `OrderItem`.
+- **Seguridad de Precios**: Los precios se validan en el servidor (L2), ignorando el precio enviado por el cliente.
+- **Transaccionalidad**:
+    - **Venta**: Inserta orden + resta stock (falla si no hay cantidad suficiente).
+    - **Cancelación**: Elimina orden + devuelve stock automáticamente a la tienda.
+
+## 🛠️ Comandos y Base de Datos
+
+### Inicialización Completa
 ```bash
-composer install
 php artisan migrate:fresh --seed
 ```
-*El seeder crea un usuario por defecto: `username: string`, `password: string`.*
+*El `InitSeeder` crea una tienda por defecto (`AA-AAA-00`), un usuario administrador, categorías, productos y llena el inventario con stock aleatorio.*
 
-### Testing
-Se han implementado tests de integración para validar el flujo completo de Auth:
-```bash
-php artisan test tests/Feature/AuthTest.php
-```
-
-### Documentación API
-- **Scramble** está configurado para la documentación automática.
-- URL: `/docs/api` (incluye soporte para Bearer Tokens).
-
-## 📌 Estado Actual
-- Login y Logout funcionales bajo arquitectura hexagonal.
-- Repositorio `EloquentAuth` vinculado via `myServiceProvider`.
-- Rutas protegidas por middleware `auth:sanctum`.
+### Endpoints Principales (Protegidos)
+- `GET /api/products/search?patito=...`: Búsqueda de productos en la tienda del usuario.
+- `POST /api/orders`: Registro de venta.
+- `GET /api/orders/index`: Historial de ventas de la tienda.
+- `DELETE /api/orders/delete?order_id=...`: Cancelación de venta y retorno de stock.
 
 ---
-*Nota para Gemini: Al retomar, verifica siempre que los bindings en `myServiceProvider` coincidan con las interfaces en `L1`.*
+*Nota para Gemini: Al retomar, prioriza el uso de SQL puro en la capa L3 y respeta siempre los Value Objects definidos en L1 para mantener la integridad del dominio.*
