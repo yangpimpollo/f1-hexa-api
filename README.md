@@ -68,3 +68,18 @@ config/auth.php
             'driver' => 'eloquent',
             'model' => yangpimpollo\L3_infrastructure\Model\my_user::class,
         ],
+
+
+
+
+
+
+
+
+
+
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+php artisan serve
