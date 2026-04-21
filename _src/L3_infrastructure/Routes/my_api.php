@@ -8,7 +8,7 @@ use yangpimpollo\L3_infrastructure\Controllers\CustomerController;
 use yangpimpollo\L3_infrastructure\Controllers\DashBoardController;
 use yangpimpollo\L3_infrastructure\Controllers\HelloWorldController;
 use yangpimpollo\L3_infrastructure\Controllers\HomeController;
-
+use yangpimpollo\L3_infrastructure\Controllers\SearchController;
 
 
 
@@ -27,14 +27,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/search-customer/{id}', [CustomerController::class, 'show']);
     Route::post('/store-customer', [CustomerController::class, 'store']);
 
-
+    Route::get('/products/search',[SearchController::class, 'index']);
     
 });
 
 
 
+// use Illuminate\Http\Request;
 
-
+// Route::get('/products/search', function (Request $request) {
+//     // Obtenemos 'q' desde la URL ?q=petro
+//     return $request->query('q'); 
+// });
+    
 
 
 

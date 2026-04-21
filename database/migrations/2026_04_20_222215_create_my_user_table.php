@@ -14,8 +14,11 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('store_id'); 
             $table->rememberToken();
             $table->timestamps();
+
+            $table->foreign('store_id')->references('store_id')->on('stores')->onDelete('cascade');
         });
     }
 
