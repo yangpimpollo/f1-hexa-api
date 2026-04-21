@@ -29,7 +29,8 @@ return [
         /*
          * Description rendered on the home page of the API documentation (`/docs/api`).
          */
-        'description' => '',
+        'description' => file_exists(base_path('README.md'))? file_get_contents(base_path('README.md')) 
+        : 'Bienvenido a la documentación de la API.',
     ],
 
     /*
