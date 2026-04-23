@@ -68,6 +68,9 @@ php artisan serve
         ],
 #----------------------------------------------------------------------
 
+BD para test en phpunit.xml
+        <env name="DB_CONNECTION" value="pgsql"/>
+        <env name="DB_DATABASE" value="f1_hexa_api-test"/>
 ```
 
 ```bash
